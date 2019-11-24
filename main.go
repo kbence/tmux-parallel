@@ -1,8 +1,6 @@
 package main
 
 import (
-	"strings"
-
 	"github.com/kbence/tmux-parallel/tmux"
 	"github.com/spf13/cobra"
 )
@@ -25,14 +23,10 @@ func main() {
 			}
 
 			session := tmux.New()
+			renderer := NewCommandRenderer(commandTemplate...)
 
 			for _, value := range args[firstValue:] {
-				command := []string{}
-				for _, arg := range commandTemplate {
-					command = append(command, strings.ReplaceAll(arg, "{}", value))
-				}
-
-				session.RunCommand(command...)
+				session.RunCommand(renderer.Render(value)...)
 			}
 
 			return nil
