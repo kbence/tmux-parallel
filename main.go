@@ -10,23 +10,14 @@ func main() {
 		Use:  "tmux-parallel",
 		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			commandTemplate := []string{}
-			firstValue := 0
-
-			for idx, arg := range args {
-				if arg == ":::" {
-					firstValue = idx + 1
-					break
-				}
-
-				commandTemplate = append(commandTemplate, arg)
-			}
+			parser := NewCommandLineParser()
+			parser.ParseArgs(args)
 
 			session := tmux.New()
-			renderer := NewCommandRenderer(commandTemplate...)
+			renderer := NewCommandRenderer(parser.CommandTemplate...)
 
-			for _, value := range args[firstValue:] {
-				session.ExecCommand(renderer.Render(value)...)
+			for parser.Arguments.Next() {
+				session.ExecCommand(renderer.Render(parser.Arguments.Value())...)
 			}
 
 			session.Attach()
