@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 // Tmux - struct to manage `tmux` sessions
@@ -36,10 +37,12 @@ func New() *Tmux {
 func (t *Tmux) ExecCommand(command ...string) {
 	var cmd *exec.Cmd
 
+	commandStr := strings.Join(command, " ")
+
 	if t.sessionExists {
-		cmd = exec.Command(t.BinaryPath, append([]string{"split-window", "-d", "-t", t.SessionID}, command...)...)
+		cmd = exec.Command(t.BinaryPath, "split-window", "-d", "-t", t.SessionID, commandStr)
 	} else {
-		cmd = exec.Command(t.BinaryPath, append([]string{"new-session", "-d", "-s", t.SessionID}, command...)...)
+		cmd = exec.Command(t.BinaryPath, "new-session", "-d", "-s", t.SessionID, commandStr)
 		t.sessionExists = true
 	}
 
