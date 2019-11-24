@@ -1,12 +1,9 @@
 package main
 
 import (
-	"fmt"
-	"math/rand"
-	"os"
-	"os/exec"
 	"strings"
 
+	"github.com/kbence/tmux-parallel/tmux"
 	"github.com/spf13/cobra"
 )
 
@@ -15,16 +12,6 @@ func main() {
 		Use:  "tmux-parallel",
 		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			sessionName := fmt.Sprintf("tmux-parallel-%d", rand.Int31())
-			sessionExists := false
-
-			tmuxPath, err := exec.LookPath("tmux")
-
-			if err != nil {
-				fmt.Println("Cannot find `tmux` on PATH! Exiting")
-				os.Exit(1)
-			}
-
 			commandTemplate := []string{}
 			firstValue := 0
 
@@ -37,25 +24,15 @@ func main() {
 				commandTemplate = append(commandTemplate, arg)
 			}
 
+			session := tmux.New()
+
 			for _, value := range args[firstValue:] {
 				command := []string{}
 				for _, arg := range commandTemplate {
 					command = append(command, strings.ReplaceAll(arg, "{}", value))
 				}
 
-				var cmd *exec.Cmd
-				if sessionExists {
-					cmd = exec.Command(tmuxPath, append([]string{"split-window", "-d", "-t", sessionName}, command...)...)
-				} else {
-					cmd = exec.Command(tmuxPath, append([]string{"new-session", "-d", "-s", sessionName}, command...)...)
-					sessionExists = true
-				}
-
-				cmd.Stdin = os.Stdin
-				cmd.Stdout = os.Stdout
-				cmd.Stderr = os.Stderr
-				cmd.Env = os.Environ()
-				cmd.Run()
+				session.RunCommand(command...)
 			}
 
 			return nil
