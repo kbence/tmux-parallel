@@ -6,6 +6,7 @@ import (
 	"os/exec"
 )
 
+// Tmux - struct to manage `tmux` sessions
 type Tmux struct {
 	BinaryPath string
 	SessionID  string
@@ -13,6 +14,7 @@ type Tmux struct {
 	sessionExists bool
 }
 
+// New - Creates and configures a new Tmux struct.
 func New() *Tmux {
 	tmuxPath, err := exec.LookPath("tmux")
 
@@ -29,6 +31,8 @@ func New() *Tmux {
 	}
 }
 
+// RunCommand - Runs a command in a new pane. If a session does not yet
+// exist, it creates one.
 func (t *Tmux) RunCommand(command ...string) {
 	var cmd *exec.Cmd
 
@@ -44,4 +48,11 @@ func (t *Tmux) RunCommand(command ...string) {
 	cmd.Stderr = os.Stderr
 	cmd.Env = os.Environ()
 	cmd.Run()
+
+	t.SelectLayout("tiled")
+}
+
+// SelectLayout - Sends a select-layout command to the tmux session
+func (t *Tmux) SelectLayout(layout string) {
+	exec.Command(t.BinaryPath, "select-layout", "-t", t.SessionID, "tiled").Run()
 }
