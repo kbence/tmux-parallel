@@ -26,8 +26,10 @@ func main() {
 			renderer := NewCommandRenderer(commandTemplate...)
 
 			for _, value := range args[firstValue:] {
-				session.RunCommand(renderer.Render(value)...)
+				session.ExecCommand(renderer.Render(value)...)
 			}
+
+			session.Attach()
 
 			return nil
 		},

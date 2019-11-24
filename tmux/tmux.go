@@ -31,9 +31,9 @@ func New() *Tmux {
 	}
 }
 
-// RunCommand - Runs a command in a new pane. If a session does not yet
+// ExecCommand - Runs a command in a new pane. If a session does not yet
 // exist, it creates one.
-func (t *Tmux) RunCommand(command ...string) {
+func (t *Tmux) ExecCommand(command ...string) {
 	var cmd *exec.Cmd
 
 	if t.sessionExists {
@@ -55,4 +55,13 @@ func (t *Tmux) RunCommand(command ...string) {
 // SelectLayout - Sends a select-layout command to the tmux session
 func (t *Tmux) SelectLayout(layout string) {
 	exec.Command(t.BinaryPath, "select-layout", "-t", t.SessionID, "tiled").Run()
+}
+
+func (t *Tmux) Attach() {
+	cmd := exec.Command(t.BinaryPath, "attach", "-t", t.SessionID)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Env = os.Environ()
+	cmd.Run()
 }
