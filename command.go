@@ -1,6 +1,8 @@
 package main
 
-import "strings"
+import (
+	"strings"
+)
 
 type CommandRenderer struct {
 	Template []string
@@ -12,11 +14,11 @@ func NewCommandRenderer(template ...string) *CommandRenderer {
 	}
 }
 
-func (r *CommandRenderer) Render(value string) []string {
+func (r *CommandRenderer) Render(values []string) []string {
 	command := []string{}
 
 	for _, arg := range r.Template {
-		command = append(command, strings.ReplaceAll(arg, "{}", value))
+		command = append(command, strings.ReplaceAll(arg, "{}", strings.Join(values, " ")))
 	}
 
 	return command
