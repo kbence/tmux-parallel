@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -22,8 +23,17 @@ func (r *CommandRenderer) Render(values []string) []string {
 		replacedArg := arg
 
 		if strings.Index(arg, "{}") != -1 {
-			replacedArg = strings.ReplaceAll(arg, "{}", strings.Join(values, " "))
+			replacedArg = strings.ReplaceAll(replacedArg, "{}", strings.Join(values, " "))
 			replaced = true
+		}
+
+		for idx, value := range values {
+			mnemonic := fmt.Sprintf("{%d}", idx+1)
+
+			if strings.Index(arg, mnemonic) != -1 {
+				replacedArg = strings.ReplaceAll(replacedArg, mnemonic, value)
+				replaced = true
+			}
 		}
 
 		command = append(command, replacedArg)
