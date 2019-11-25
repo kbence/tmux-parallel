@@ -14,11 +14,16 @@ type CommandRendererSuite struct{}
 
 var _ = Suite(&CommandRendererSuite{})
 
-func (s *CommandRendererSuite) Test(c *C) {
+func (s *CommandRendererSuite) TestSimpleValueRendering(c *C) {
 	renderer := NewCommandRenderer("echo", "{}")
 	cmd := renderer.Render([]string{"value"})
 
-	c.Assert(cmd, HasLen, 2)
-	c.Assert(cmd[0], Equals, "echo")
-	c.Assert(cmd[1], Equals, "value")
+	c.Assert(cmd, DeepEquals, []string{"echo", "value"})
+}
+
+func (s *CommandRendererSuite) TestSimpleOutput(c *C) {
+	renderer := NewCommandRenderer("echo")
+	cmd := renderer.Render([]string{"value"})
+
+	c.Assert(cmd, DeepEquals, []string{"echo", "value"})
 }

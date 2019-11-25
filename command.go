@@ -16,9 +16,21 @@ func NewCommandRenderer(template ...string) *CommandRenderer {
 
 func (r *CommandRenderer) Render(values []string) []string {
 	command := []string{}
+	replaced := false
 
 	for _, arg := range r.Template {
-		command = append(command, strings.ReplaceAll(arg, "{}", strings.Join(values, " ")))
+		replacedArg := arg
+
+		if strings.Index(arg, "{}") != -1 {
+			replacedArg = strings.ReplaceAll(arg, "{}", strings.Join(values, " "))
+			replaced = true
+		}
+
+		command = append(command, replacedArg)
+	}
+
+	if !replaced {
+		command = append(command, values...)
 	}
 
 	return command
