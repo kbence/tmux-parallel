@@ -117,8 +117,6 @@ func (t *Tmux) IsAttached() bool {
 	_, err := os.FindProcess(t.attachCommand.Process.Pid)
 
 	return err == nil
-
-	// return !t.attachCommand.ProcessState.Exited()
 }
 
 // Wait - Waits until tmux exists. Should be called after AttachAsync
