@@ -42,6 +42,7 @@ func main() {
 		},
 	}
 
+	cmd.Flags().SetInterspersed(false)
 	cmd.Flags().IntVarP(&jobCount, "jobs", "j", runtime.NumCPU(), "Number of jobs to run at once")
 	cmd.Execute()
 }
