@@ -36,7 +36,7 @@ func New() *Tmux {
 
 	return &Tmux{
 		BinaryPath: tmuxPath,
-		SessionID:  generateRandomSessionId("tmux-parallel"),
+		SessionID:  generateRandomSessionID("tmux-parallel"),
 
 		sessionExists: false,
 	}

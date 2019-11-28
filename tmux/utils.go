@@ -6,10 +6,17 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"time"
 )
 
-func generateRandomSessionId(prefix string) string {
-	return fmt.Sprintf("%s-%d", prefix, rand.Int31())
+var random *rand.Rand
+
+func init() {
+	random = rand.New(rand.NewSource(time.Now().UnixNano()))
+}
+
+func generateRandomSessionID(prefix string) string {
+	return fmt.Sprintf("%s-%d", prefix, random.Int31())
 }
 
 func commandRedirect(args ...string) *exec.Cmd {
