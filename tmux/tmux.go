@@ -56,10 +56,6 @@ func (t *Tmux) ExecCommand(command ...string) {
 		t.sessionExists = true
 	}
 
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Env = os.Environ()
 	cmd.Run()
 
 	t.SelectLayout("tiled")
