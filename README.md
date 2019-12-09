@@ -2,6 +2,18 @@
 
 `tmux-parallel` aims to be a GNU parallel compatible alternative to build and run commands in a batch while also observing the live output using [tmux](https://github.com/tmux/tmux).
 
+## Installation
+
+### Compiling from source
+
+You'll need to have at least Go 1.13. Execute the following command:
+
+    go get -u github.com/kbence/tmux-parallel
+
+This should put the binary into your `$GOPATH/bin` directory. Alternatively, you can clone the repository or download it as a Zip and extract. In that case, issue the following command in the project's root directory:
+
+    go get .
+
 ## Usage
 
 The basic format of a command looks something like this:
