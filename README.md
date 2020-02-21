@@ -22,7 +22,7 @@ The basic format of a command looks something like this:
 
 If no parameter references are present in the command, the expanded argument list will get appended to the base command, for example:
 
-    tmux-parallel echo args ::: 1 2 ::: 3 4
+    tmux-parallel echo ::: 1 2 ::: 3 4
 
 will execute the following commands in parallel:
 
