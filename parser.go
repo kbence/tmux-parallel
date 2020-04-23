@@ -23,5 +23,5 @@ func (p *CommandLineParser) ParseArgs(args []string) {
 		p.CommandTemplate = append(p.CommandTemplate, arg)
 	}
 
-	p.Arguments = ParseArgumentExpansion(args[index+1:])
+	p.Arguments = ParseArgumentExpansion(args[index:])
 }

@@ -1,5 +1,12 @@
 package main
 
+const (
+	cartesianExpansion     = ":::"
+	linkedExpansion        = ":::+"
+	cartesianFileExpansion = "::::"
+	linkedFileExpansion    = "::::+"
+)
+
 // ArgumentColumnGroup - Stores column groups (appended using :::+)
 // for the values being joined 1 to 1
 type ArgumentColumnGroup struct {
@@ -56,21 +63,47 @@ type ArgumentExpander struct {
 // and returns an ArgumentExpander that behaves in a compatible way
 func ParseArgumentExpansion(args []string) *ArgumentExpander {
 	groups := []*ArgumentColumnGroup{}
+	freader := fileReader{}
+
 	currentGroup := 0
 	currentColumn := 0
+	fileExpansion := len(args) > 0 && (args[0] == cartesianFileExpansion || args[0] == linkedFileExpansion)
+	expandGroup := len(args) > 0 && args[0] == cartesianFileExpansion
 
-	for _, arg := range args {
-		if arg == ":::" {
+	for idx, arg := range args[1:] {
+		if arg == cartesianExpansion {
+			fileExpansion = false
 			currentGroup++
-		} else if arg == ":::+" {
+		} else if arg == linkedExpansion {
+			fileExpansion = false
 			currentColumn++
+		} else if arg == cartesianFileExpansion {
+			fileExpansion = true
+			expandGroup = true
+		} else if arg == linkedFileExpansion {
+			fileExpansion = true
+			expandGroup = false
 		} else {
+			if fileExpansion && idx > 0 {
+				if expandGroup {
+					currentGroup++
+				} else {
+					currentColumn++
+				}
+			}
+
 			if currentGroup >= len(groups) {
 				groups = append(groups, NewArgumentColumnGroup())
 				currentColumn = 0
 			}
 
-			groups[currentGroup].Append(currentColumn, arg)
+			if fileExpansion {
+				for _, line := range freader.ReadLinesFromFile(arg) {
+					groups[currentGroup].Append(currentColumn, line)
+				}
+			} else {
+				groups[currentGroup].Append(currentColumn, arg)
+			}
 		}
 	}
 

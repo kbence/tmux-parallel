@@ -64,3 +64,18 @@ will only use argument pairs `1 4` and `2 5`, `3` will be ignored completely. Wh
     tmux-parallel echo ::: a b ::: 1 2 3 :::+ 4 5
 
 will result in arguments `a 1 4`, `a 2 5`, `b 1 4`, `b 2 5`.
+
+### File join (::::, ::::+)
+
+If you have inputs as lines of files rather than just inline arguments / subshell expansions, using these operators you can make your life much easier.
+
+- `::::` works exactly like `:::` but treats the arguments as files to load the arguments from
+- The same goes for `::::+`, it acts like `:::+` but using the file after to describe arguments
+
+Additionally, there's a syntactic sugar that can make your commands even shorter: if multiple files are specified, they are considered to be similar expansions going on (they don't get appended). For example:
+
+    tmux-parallel echo :::: fileA fileB ::::+ fileC fileD
+
+does the exact same thing as
+
+    tmux-parallel echo :::: fileA :::: fileB ::::+ fileC ::::+ fileD

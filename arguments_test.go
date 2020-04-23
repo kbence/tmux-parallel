@@ -14,8 +14,8 @@ type ArgumentExpanderSuite struct{}
 
 var _ = Suite(&ArgumentExpanderSuite{})
 
-func (s *ArgumentExpanderSuite) TestSimpleExpansion(c *C) {
-	args := ParseArgumentExpansion([]string{"a", "b", "c"})
+func (s *ArgumentExpanderSuite) TestCartesianExpansion(c *C) {
+	args := ParseArgumentExpansion([]string{":::", "a", "b", "c"})
 
 	assertArgumentsExpandedTo(c, args, [][]string{
 		[]string{"a"},
@@ -25,7 +25,7 @@ func (s *ArgumentExpanderSuite) TestSimpleExpansion(c *C) {
 }
 
 func (s *ArgumentExpanderSuite) TestMultiDimExpansion(c *C) {
-	args := ParseArgumentExpansion([]string{"a", "b", ":::", "c", "d"})
+	args := ParseArgumentExpansion([]string{":::", "a", "b", ":::", "c", "d"})
 
 	assertArgumentsExpandedTo(c, args, [][]string{
 		[]string{"a", "c"},
@@ -35,8 +35,8 @@ func (s *ArgumentExpanderSuite) TestMultiDimExpansion(c *C) {
 	})
 }
 
-func (s *ArgumentExpanderSuite) TestMultiColumnExpansion(c *C) {
-	args := ParseArgumentExpansion([]string{"a", "b", ":::+", "c", "d"})
+func (s *ArgumentExpanderSuite) TestLinkedColumnExpansion(c *C) {
+	args := ParseArgumentExpansion([]string{":::", "a", "b", ":::+", "c", "d"})
 
 	assertArgumentsExpandedTo(c, args, [][]string{
 		[]string{"a", "c"},
@@ -47,7 +47,7 @@ func (s *ArgumentExpanderSuite) TestMultiColumnExpansion(c *C) {
 func (s *ArgumentExpanderSuite) TestComplexColumnExpansion(c *C) {
 	args := ParseArgumentExpansion(
 		[]string{
-			"a", "b",
+			":::", "a", "b",
 			":::+", "c", "d",
 			":::", "e", "f", "g",
 			":::+", "h", "i", "j",
@@ -61,6 +61,71 @@ func (s *ArgumentExpanderSuite) TestComplexColumnExpansion(c *C) {
 		[]string{"b", "d", "e", "h"},
 		[]string{"b", "d", "f", "i"},
 		[]string{"b", "d", "g", "j"},
+	})
+}
+
+func (s *ArgumentExpanderSuite) TestCartesianFileExpansion(c *C) {
+	tmpDir := newTempDir()
+	defer tmpDir.Release()
+
+	tmpDir.CreateFile("fruits", "apple\norange\npeach")
+
+	args := ParseArgumentExpansion(
+		[]string{
+			":::", "a", "b",
+			"::::", tmpDir.PathOf("fruits"),
+		},
+	)
+
+	assertArgumentsExpandedTo(c, args, [][]string{
+		[]string{"a", "apple"},
+		[]string{"a", "orange"},
+		[]string{"a", "peach"},
+		[]string{"b", "apple"},
+		[]string{"b", "orange"},
+		[]string{"b", "peach"},
+	})
+}
+
+func (s *ArgumentExpanderSuite) TestLinkedFileExpansion(c *C) {
+	tmpDir := newTempDir()
+	defer tmpDir.Release()
+
+	tmpDir.CreateFile("drinks", "beer\nwine\ngin")
+	tmpDir.CreateFile("fruits", "apple\norange\npeach\nstrawberry")
+
+	args := ParseArgumentExpansion(
+		[]string{
+			"::::", tmpDir.PathOf("drinks"),
+			"::::+", tmpDir.PathOf("fruits"),
+		},
+	)
+
+	assertArgumentsExpandedTo(c, args, [][]string{
+		[]string{"beer", "apple"},
+		[]string{"wine", "orange"},
+		[]string{"gin", "peach"},
+	})
+}
+
+func (s *ArgumentExpanderSuite) TestCartesianMultiFileExpansion(c *C) {
+	tmpDir := newTempDir()
+	defer tmpDir.Release()
+
+	tmpDir.CreateFile("drinks", "beer\nwine")
+	tmpDir.CreateFile("fruits", "apple\norange")
+
+	args := ParseArgumentExpansion(
+		[]string{
+			"::::", tmpDir.PathOf("drinks"), tmpDir.PathOf("fruits"),
+		},
+	)
+
+	assertArgumentsExpandedTo(c, args, [][]string{
+		[]string{"beer", "apple"},
+		[]string{"beer", "orange"},
+		[]string{"wine", "apple"},
+		[]string{"wine", "orange"},
 	})
 }
 
