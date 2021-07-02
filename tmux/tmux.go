@@ -17,6 +17,7 @@ type Tmux struct {
 
 	sessionExists bool
 	attachCommand *exec.Cmd
+	tmux          *TmuxController
 }
 
 type TmuxPane struct {
@@ -39,24 +40,26 @@ func New() *Tmux {
 		SessionID:  generateRandomSessionID("tmux-parallel"),
 
 		sessionExists: false,
+		tmux:          NewTmuxController(),
 	}
 }
 
 // ExecCommand - Runs a command in a new pane. If a session does not yet
 // exist, it creates one.
 func (t *Tmux) ExecCommand(command ...string) {
-	var cmd *exec.Cmd
+	// var cmd *exec.Cmd
 
 	commandStr := strings.Join(command, " ")
 
 	if t.sessionExists {
-		cmd = commandRedirect(t.BinaryPath, "split-window", "-d", "-t", t.SessionID, commandStr)
+		// cmd = commandRedirect(t.BinaryPath, "split-window", "-d", "-t", t.SessionID, commandStr)
 	} else {
-		cmd = commandRedirect(t.BinaryPath, "new-session", "-d", "-s", t.SessionID, commandStr)
-		t.sessionExists = true
+		// cmd = commandRedirect(t.BinaryPath, "new-session", "-d", "-s", t.SessionID, commandStr
+		// t.sessionExists = true
+		t.tmux.NewSession(commandStr)
 	}
 
-	cmd.Run()
+	// cmd.Run()
 
 	t.SelectLayout("tiled")
 }
@@ -99,8 +102,9 @@ func (t *Tmux) GetPaneCount() int {
 
 // AttachAsync - Attaches the terminal to tmux and returns (non-blocking)
 func (t *Tmux) AttachAsync() {
-	t.attachCommand = commandRedirect(t.BinaryPath, "attach", "-t", t.SessionID)
-	t.attachCommand.Start()
+	t.tmux.Attach()
+	// t.attachCommand = commandRedirect(t.BinaryPath, "attach", "-t", t.SessionID)
+	// t.attachCommand.Start()
 }
 
 // IsAttached - returns if the process is running (since it means our
@@ -117,5 +121,5 @@ func (t *Tmux) IsAttached() bool {
 
 // Wait - Waits until tmux exists. Should be called after AttachAsync
 func (t *Tmux) Wait() {
-	t.attachCommand.Wait()
+	// t.attachCommand.Wait()
 }

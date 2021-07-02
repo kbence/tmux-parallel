@@ -36,3 +36,9 @@ func atoi(s string) int {
 
 	return 0
 }
+
+func handlePanic(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
